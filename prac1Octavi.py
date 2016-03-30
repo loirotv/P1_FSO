@@ -13,19 +13,23 @@ def reomplir():
 		fullname = os.path.join(dirAct, archiu)
 		if not os.path.isdir(fullname) and not os.path.islink(fullname):
 			listE.insert(END,archiu)
-	
-	
 
 def borra_noseleccio():
 	index = listE.curselection()
-	element=listE.get(index)
+	i=0
+	while (i < len(index)):
+		listAux.insert(listE.get(index[i]))
+		i=i+1
 	listE.delete(0,END)
-	listE.insert(END,element)
+	#listE.insert(END,element)
+	listE = listAux
 
 def borra_seleccio():
 	index = listE.curselection()
-	listE.delete(index)
-
+	i = len(index)-1
+	while (i >= 0):
+		listE.delete(index[i])
+		i=i-1
 
 def escDirTr():
 	global dirNou, dire, elements
@@ -34,9 +38,9 @@ def escDirTr():
 	listE.insert(END,dirNou)
 	#for elements in os.listdir(dirNou):
 	#	print elements
-	
 
-		
+
+
 def ompleLlista():
 	global dirNou, caracter, element
 	caracter=en2.get()
@@ -60,14 +64,14 @@ finestra.minsize('0','0')
 
 
 #Subfinestra Nort Principal (1)
-fS=Frame(finestra)	#1!    
+fS=Frame(finestra)	#1!
 fS.pack()#anchor=W)
 
 dire=StringVar()
 dirNou=''
 
 svA1=Frame(fS)				#Ventana A
-svA1.pack(fill=X,anchor=W)	
+svA1.pack(fill=X,anchor=W)
 bEDT=Button(svA1, text='Escollir Directori Treball',command=escDirTr)
 bEDT.pack(side=LEFT)
 en=Label(svA1,width=30,relief=SUNKEN,textvariable=dire)
@@ -160,7 +164,7 @@ def copia_seleccioED():
 		listD.insert(END,element)
 		listE.delete(index[0])
 		index = listE.curselection()
-   
+
 
 def copia_seleccioDE():
     index = listD.curselection()
