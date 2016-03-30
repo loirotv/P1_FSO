@@ -1,43 +1,43 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from Tkinter import *
-import os, tkSimpleDialog, tkFileDialog, fnmatch, glob, shutil
+from Tkinter import * #Importem la llibreria Tkinter
+import os, tkSimpleDialog, tkFileDialog, fnmatch, glob, shutil #Importem altres llibreries necessaries
 
 def escDirTr(): #Permet escollir el directori
 	global dirNou, dire
-	dirNou = tkFileDialog.askdirectory(title='Escolleix directori')
-	dire.set(dirNou)
+	dirNou = tkFileDialog.askdirectory(title='Escolleix directori') #Dialeg per seleccionar el directori de treball
+	dire.set(dirNou) #Fixem el directori de treball seleccionat
 
 
 def ompleLlista(): #Omple la llista de fitxers
 	global dirNou
-	caracter=en2.get()
-	for (dirpath, dirnames, filenames) in os.walk(dirNou):
+	caracter=en2.get() #obtenim el string introduit per mostrar els fitxers desitjats
+	for (dirpath, dirnames, filenames) in os.walk(dirNou): #Recorrem el directori de treball seleccionant les coincidencies
 		for element in filenames:
-			if fnmatch.fnmatch(element,caracter):
-				listE.insert(END,dirpath[len(dirNou):]+'/'+element)
+			if fnmatch.fnmatch(element,caracter): #Funció fnmatch explicada al informe
+				listE.insert(END,dirpath[len(dirNou):]+'/'+element)  #si coincideix, l'afegim a la llista que es mostra
 
 
 def borrar(): #Oculta tots els elements de la llista
-	listE.delete(0,END)
+	listE.delete(0,END) #Eliminem tots els elements de la llista
 
 
 def borra_noseleccio(): #Oculta els elements NO seleccionats de la llista
-	index = listE.curselection()
+	index = listE.curselection() #obtenim els elements seleccionts
 	element=[]
 	j=0
-	for i in index:
+	for i in index: #Guardem els elements seleccionats a element[]
 		element.insert(j,listE.get(i))
 		j=j+1
-	listE.delete(0,END)
-	for j in element:
+	listE.delete(0,END) #eliminem els elements NO seleccionats
+	for j in element: #retornem a la llista els elements seleccionats (els haviem reservat a element[])
 		listE.insert(END,j)
 
 
 def borra_seleccio(): #Oculta els elements seleccionats de la llista
-	index = listE.curselection()
-	for i in  reversed(index):
+	index = listE.curselection() #obtenim els elements seleccionats
+	for i in reversed(index): #Eliminem de la llista els elements seleccionats
 		listE.delete(i)
 
 
@@ -51,40 +51,39 @@ def deselec_Tots(): #Deselecciona tots els elements de la llista
 
 def copiar_fitxers(): #Copia els fitxers en un altre directori
 	global dirNou
-	index = listE.curselection()
-	dirDst = tkFileDialog.askdirectory(title='Directori on copiar els arxius')
+	index = listE.curselection() #obtenim els elements seleccionats
+	dirDst = tkFileDialog.askdirectory(title='Directori on copiar els arxius') #Dialeg on demanem quin es el directori destí
 	for i in index:
 		dirArchiu = listE.get(i)
 		dirSrc = os.path.join(dirNou+'/',dirArchiu[1:])
-		print dirSrc
-		os.system("cp -p"+' \"'+dirSrc+'\" \"'+dirDst+'\"')
+		os.system("cp -p"+' \"'+dirSrc+'\" \"'+dirDst+'\"') #Mitjançant la comanda cp -p copiem els elements seleccionats al directori destí
 
 
 def moure_fitxers(): #Mou els fitxers en un altre directori
 	global dirNou
-	index = listE.curselection()
-	dirDst = tkFileDialog.askdirectory(title='Directori on moure els arxius')
+	index = listE.curselection() #obtenim els elements seleccionats
+	dirDst = tkFileDialog.askdirectory(title='Directori on moure els arxius') #Dialeg on demanem quin es el directori destí
 	for i in index:
 		dirArchiu = listE.get(i)
 		dirSrc = os.path.join(dirNou+'/',dirArchiu[1:])
-		print dirSrc
-		os.system("mv "+' \"'+dirSrc+'\" \"'+dirDst+'\"')
+		os.system("mv "+' \"'+dirSrc+'\" \"'+dirDst+'\"') #Mitjançant la comanda mv movem els elements seleccionats al directori destí
+		listE.delete(i) # Com que ja no es troben al directori de treball, els ocultem de la llista
 
 
 def esborrar_arxius(): #Esborra els elements seleccionats
 	global finestra2
-	index = listE.curselection()
+	index = listE.curselection() #obtenim els elements seleccionats
 	for i in index:
 		rm_file=listE.get(i)
-		print rm_file
 		rm_dir = os.path.join(dirNou+'/',rm_file[1:])
-		print rm_dir
 		os.system("rm "+' \"'+rm_dir+'\" ')
-	finestra2.quit()
+		listE.delete(i)
+	finestra2.destroy()
 
 
 def finestra_esborrar(): #Finestra de confirmació per esborrar fitxers
 	global finestra2
+
 	finestra2=Toplevel(finestra)
 	finestra2.minsize(0,0)
 	finestra2.title('Esborrar Fitxers')
@@ -95,24 +94,43 @@ def finestra_esborrar(): #Finestra de confirmació per esborrar fitxers
 	espai.pack(fill=BOTH)
 	bSi=Button(finestra2,text='SI',command=esborrar_arxius)
 	bSi.pack(side=RIGHT,anchor=W)
-	bNo=Button(finestra2,text='NO',command=finestra2.quit)
+	bNo=Button(finestra2,text='NO',command=finestra2.destroy)
 	bNo.pack(side=RIGHT,anchor=W)
 
-	finestra2.mainloop()
 
+def renombrar_fitxers(): #mod
+	global finestraRenombrar, camp1, camp2
+	subc1=camp1.get()
+	subc2=camp2.get()
 
-def renombrar_fitxers(): #Permet renombrar fitxers
-	global dirNou
 	index = listE.curselection()
 	for i in index:
 		dirArchiu = listE.get(i)
 		dirSrc = os.path.join(dirNou+'/',dirArchiu[1:])
+		dirArchiu=dirArchiu.replace(subc1,subc2)
+		dirDst = os.path.join(dirNou+'/',dirArchiu[1:])
+		listE.delete(i)
+		listE.insert(i,dirArchiu)
+		os.system("mv "+' \"'+dirSrc+'\" \"'+dirDst+'\"')
 
-		print "mv "+' \"'+dirSrc+'\" \"'+dirNou+' $echo \"'+dirArchiu[1:]+'\" | tr \'a\' \'A\')\" '
+	finestraRenombrar.destroy()
 
-		#os.system("mv "+' \"'+dirArchiu[1:]+'\" | tr \'a\' \'A\'')
-		#os.system("mv "+' \"'+dirSrc+'\" \"'+dirDst+'\"')
-		os.system("mv "+' \"'+dirSrc+'\" \"'+dirNou+"echo "+' \"'+dirArchiu[1:]+'\" | tr \'a\' \'A\'')
+
+def renombrar_finestra(): #mod
+	global finestraRenombrar, camp1, camp2
+	finestraRenombrar=Toplevel(finestra)
+	finestraRenombrar.minsize(0,0)
+	finestraRenombrar.title('Patrons de Renombrament')
+	frtxt= Label(finestraRenombrar, text="Modifica substring: ")
+	frtxt.pack(side=LEFT,anchor=W)
+	camp1=Entry(finestraRenombrar,width=5)
+	camp1.pack(anchor=W,side=LEFT)
+	frtxt2=Label(finestraRenombrar, text="a: ")
+	frtxt2.pack(side=LEFT,anchor=W)
+	camp2=Entry(finestraRenombrar,width=5)
+	camp2.pack(anchor=W,side=LEFT)
+	bR=Button(finestraRenombrar,text='Renombrar',command=renombrar_fitxers)
+	bR.pack(side=RIGHT,anchor=W)
 
 
 #MAIN
@@ -189,7 +207,7 @@ bOSB2=Button(svB,text='Moure',command=moure_fitxers)
 bOSB2.pack(side=LEFT)
 bONSB2=Button(svB,text='Esborrar',command=finestra_esborrar)
 bONSB2.pack(side=LEFT)
-bOSB2=Button(svB,text='Renombrar',command=renombrar_fitxers)
+bOSB2=Button(svB,text='Renombrar',command=renombrar_finestra)
 bOSB2.pack(side=LEFT)
 
 svC=Frame(fS2)			#Bc) boto sortir
